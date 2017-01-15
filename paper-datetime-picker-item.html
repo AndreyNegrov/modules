@@ -5,6 +5,7 @@
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
 <link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../paper-styles/color.html">
@@ -41,122 +42,180 @@
 			.item[has-no-date] .text {
 				color: var(--secondary-text-color);
 			}
+
+			paper-input {
+				width: 80%;
+				margin: 0 auto;
+
+				font-size: 14px;
+				font-family: "Roboto", sans-serif;
+				font-weight: 400;
+				line-height: 1.4;
+				padding: 0 0 0 20px;
+
+				--paper-input-container: {
+					padding: 0;
+				};
+
+				--paper-input-container-input: {
+					font-size: 14px;
+					font-family: 'Roboto', sans-serif;
+					font-weight: 400;
+					opacity: 0.5;
+				};
+				--paper-input-container-focus-color: #2196f3;
+				--paper-input-container-underline: {
+					border-bottom: 1px solid rgba(0, 0, 0, 0.15) !important;
+					border-top: none;
+				};
+				--paper-input-container-label-focus: {
+					font-size: 14px;
+					font-family: 'Roboto', sans-serif;
+					font-weight: 400;
+				};
+				--paper-input-container-label: {
+					opacity: 0.5;
+				};
+				--paper-input-container-label-floating: {
+					font-size: 14px;
+					color: #2196f3 !important;
+					font-family: 'Roboto', sans-serif;
+					font-weight: 500;
+					opacity: 1;
+					text-transform: capitalize;
+				};
+			}
+
+			paper-icon-button {
+				width: 34px;
+				font-size: 14px;
+				font-family: "Roboto", sans-serif;
+				font-weight: 400;
+				line-height: 1.4;
+				margin-top: 15px;
+			}
+
 		</style>
 
-		<paper-icon-item on-tap="_editDate" class="flex item" has-no-date$="[[_hasNoDate]]">
-			<paper-ripple class="fit"></paper-ripple>
-			<iron-icon icon="[[icon]]" item-icon class="icon"></iron-icon>
-			<paper-item-body class="text">[[_formattedDate]]</paper-item-body>
-		</paper-icon-item>
-		<paper-item class="flex" on-tap="_editTime" hidden="[[_hasNoDate]]">
-			<paper-ripple class="fit"></paper-ripple>
-			[[_formattedTime]]
-		</paper-item>
+
+		<paper-input label="[[placeholder]]" on-tap="_editDate"
+					 value="[[_formattedDate]][[_formattedTime]]"></paper-input>
+		<paper-icon-button icon="icons:clear" class="opacity-three" on-tap="clear"></paper-icon-button>
+
 	</template>
 
 </dom-module>
 
 <script>
 
-(function() {
+    (function () {
 
-	Polymer({
-		is: 'paper-datetime-picker-item',
-		properties: {
-			/**
-			 * Icon shown left of the date
-			 */
-			icon: String,
+        Polymer({
+            is: 'paper-datetime-picker-item',
+            properties: {
+                /**
+                 * Icon shown left of the date
+                 */
+                icon: String,
 
-			_formattedDate: String,
-			_formattedTime: {
-				type: String,
-				value: '',
-				computed: '_getFormattedTime(date, locale)'
-			},
-			_hasNoDate: {
-				type: Boolean,
-				value: true,
-				computed: '_computeHasNoDate(date)'
-			}
-		},
+                _formattedDate: String,
+                _formattedTime: {
+                    type: String,
+                    value: '',
+                    computed: '_getFormattedTime(date, locale)'
+                },
+                _hasNoDate: {
+                    type: Boolean,
+                    value: true,
+                    computed: '_computeHasNoDate(date)'
+                }
+            },
 
-		behaviors: [
-			Polymer.PaperDatePickerItemBehavior
-		],
+            behaviors: [
+                Polymer.PaperDatePickerItemBehavior
+            ],
 
-		// Trigger calculation of _formattedDate also if date is undefined
-		observers: [
-			'_onChangedPlaceholder(placeholder, locale)',
-			'_onChangedDate(date, locale)'
-		],
+            // Trigger calculation of _formattedDate also if date is undefined
+            observers: [
+                '_onChangedPlaceholder(placeholder, locale)',
+                '_onChangedDate(date, locale)'
+            ],
 
-		// Private methods
-		_editDate: function() {
-			var dialog = document.createElement('paper-date-picker-edit-dialog');
+            clear: function (event) {
+                event.stopPropagation();
+                console.log(this.date);
+                this.date = null;
+            },
 
-			// Wait until dialog is created before the properties can be set
-			// @see http://stackoverflow.com/a/31482376
-			this.async(function() {
-				// Initialize dialog with the current date (default to today to avoid exception)
-				dialog.date = this.date? moment(this.date).toDate() : new Date();
+            // Private methods
+            _editDate: function () {
+                var dialog = document.createElement('paper-date-picker-edit-dialog');
 
-				// Localize text
-				dialog.cancelButton = this.cancelButton;
-				dialog.okButton = this.okButton;
+                // Wait until dialog is created before the properties can be set
+                // @see http://stackoverflow.com/a/31482376
+                this.async(function () {
+                    // Initialize dialog with the current date (default to today to avoid exception)
+                    dialog.date = this.date ? moment(this.date).toDate() : new Date();
 
-				dialog.locale = this.locale;
+                    // Localize text
+                    dialog.cancelButton = this.cancelButton;
+                    dialog.okButton = this.okButton;
 
-				// Capture date if the user saved the dialog
-				dialog.addEventListener('paper-date-picker-edit-dialog-save', function(e) {
-					var newDate = e.detail;
+                    dialog.locale = this.locale;
 
-					// If there is already a time picked, don't change it
-					// TODO: this piece is only necessary because of this issue with the date picker: https://github.com/bendavis78/paper-date-picker/issues/50
-					// Once issue is solved this method can be replaced by PaperDatePickerItemBehaviorImpl._edit
-					if (typeof this.date !== 'undefined' && this.date !== null) {
-						var hours = moment(this.date).format('HH');
-						var minutes = moment(this.date).format('mm');
-						newDate.setHours(hours, minutes);
-					} else if (this.defaultTime) {
-						// there is no old date, but we want to set the newly chosen one to the default time
-						var oldDate = new moment(this.defaultTime, 'HH:mm');
-						var hours = moment(oldDate).format('HH');
-						var minutes = moment(oldDate).format('mm');
-						newDate.setHours(hours, minutes);
-					}
-					this.date = newDate;
+                    // Capture date if the user saved the dialog
+                    dialog.addEventListener('paper-date-picker-edit-dialog-save', function (e) {
+                        var newDate = e.detail;
 
-					// Inform listener of 'change' events when the date was changed
-					this.fire('change', { value: this.date });
-					this._editTime();
-				}.bind(this));
+                        // If there is already a time picked, don't change it
+                        // TODO: this piece is only necessary because of this issue with the date picker: https://github.com/bendavis78/paper-date-picker/issues/50
+                        // Once issue is solved this method can be replaced by PaperDatePickerItemBehaviorImpl._edit
+                        if (typeof this.date !== 'undefined' && this.date !== null) {
+                            var hours = moment(this.date).format('HH');
+                            var minutes = moment(this.date).format('mm');
+                            newDate.setHours(hours, minutes);
+                        } else if (this.defaultTime) {
+                            // there is no old date, but we want to set the newly chosen one to the default time
+                            var oldDate = new moment(this.defaultTime, 'HH:mm');
+                            var hours = moment(oldDate).format('HH');
+                            var minutes = moment(oldDate).format('mm');
+                            newDate.setHours(hours, minutes);
+                        }
+                        this.date = newDate;
 
-				dialog.open();
-			}.bind(this));
+                        // Inform listener of 'change' events when the date was changed
+                        this.fire('change', {value: this.date});
+                        this._editTime();
+                    }.bind(this));
 
-			// Return dialog for unit testing
-	        return dialog;
-		},
-		_onChangedPlaceholder: function(placeholder, locale) {
-			this._formattedDate = this._getFormattedDate(this.date, placeholder, locale);
-		},
-		_onChangedDate: function(date, locale) {
-			this._formattedDate = this._getFormattedDate(date, this.placeholder, locale);
-		},
+                    dialog.open();
+                }.bind(this));
 
-		// Time related private methods
-		_editTime: function() {
-			return this._edit('paper-time-picker-edit-dialog');
-		},
-		_computeHasNoDate: function(date) {
-			return typeof date === 'undefined' || date === null;
-		},
+                // Return dialog for unit testing
+                return dialog;
+            },
+            _onChangedPlaceholder: function (placeholder, locale) {
+                this._formattedDate = this._getFormattedDate(this.date, placeholder, locale);
+            },
+            _onChangedDate: function (date, locale) {
+                this._formattedDate = this._getFormattedDate(date, this.placeholder, locale);
+            },
 
-		callbackChangeTime: function(){
-		}
-	});
+            // Time related private methods
+            _editTime: function () {
+                return this._edit('paper-time-picker-edit-dialog');
+            },
+            _computeHasNoDate: function (date) {
+                return typeof date === 'undefined' || date === null;
+            },
 
-})();
+            callbackChangeTime: function () {
+            },
+
+            callbackDeleteDateTime: function () {
+            }
+        });
+
+    })();
 
 </script>
