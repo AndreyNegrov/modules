@@ -143,7 +143,13 @@
 
             clear: function (event) {
                 event.stopPropagation();
-                console.log(this.date);
+
+                var self = this;
+
+                this.callbackDeleteDateTime(function(){self.date = null;});
+            },
+
+            clearRemote: function () {
                 this.date = null;
             },
 
@@ -186,6 +192,14 @@
                         // Inform listener of 'change' events when the date was changed
                         this.fire('change', {value: this.date});
                         this._editTime();
+                        var dateTime = {};
+                        dateTime.year = moment(this.date).locale(this.locale).format("YYYY");
+                        dateTime.month = moment(this.date).locale(this.locale).format("MM");
+                        dateTime.day = moment(this.date).locale(this.locale).format("DD");
+                        dateTime.hours = moment(this.date).locale(this.locale).format("HH");
+                        dateTime.minutes = moment(this.date).locale(this.locale).format("mm");
+                        this.callbackChangeTime(dateTime);
+
                     }.bind(this));
 
                     dialog.open();
@@ -209,10 +223,10 @@
                 return typeof date === 'undefined' || date === null;
             },
 
-            callbackChangeTime: function () {
+            callbackChangeTime: function (dateTime) {
             },
 
-            callbackDeleteDateTime: function () {
+            callbackDeleteDateTime: function (setToZero) {
             }
         });
 
