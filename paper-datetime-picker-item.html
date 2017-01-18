@@ -98,9 +98,9 @@
 		</style>
 
 
-		<paper-input label="[[placeholder]]" on-tap="_editDate"
+		<paper-input readonly label="[[placeholder]]" on-tap="_editDate" has-no-date$="[[_hasNoDate]]"
 					 value="[[_formattedDate]][[_formattedTime]]"></paper-input>
-		<paper-icon-button icon="icons:clear" class="opacity-three" on-tap="clear"></paper-icon-button>
+		<paper-icon-button icon="icons:clear" class="opacity-three" on-click="clear" on-tap="clear"></paper-icon-button>
 
 	</template>
 
@@ -142,26 +142,64 @@
             ],
 
             clear: function (event) {
-                event.stopPropagation();
-
                 var self = this;
 
-                this.callbackDeleteDateTime(function(){self.date = null;});
+                this.callbackDeleteDateTime(function () {
+                    self.date = null;
+                });
             },
 
-            clearRemote: function () {
-                this.date = null;
+
+            rolledBackDate: function(){
+                this.date = this.oldDate;
+            },
+
+            setDate: function (date) {
+                this.date = date;
             },
 
             // Private methods
             _editDate: function () {
+
+                if(!this.date){
+                    this.date = null;
+                }
+
                 var dialog = document.createElement('paper-date-picker-edit-dialog');
 
                 // Wait until dialog is created before the properties can be set
                 // @see http://stackoverflow.com/a/31482376
                 this.async(function () {
+
+                    var self = this;
                     // Initialize dialog with the current date (default to today to avoid exception)
-                    dialog.date = this.date ? moment(this.date).toDate() : new Date();
+
+                    var nowDate = new Date();
+
+                    if (this.date){
+                        dialog.date = moment(this.date).toDate();
+                    } else{
+
+                        if (this.maxDate || this.minDate){
+
+                            dialog.date = nowDate;
+
+                            if (this.maxDate && (nowDate > moment(this.maxDate).hour("00").minute("00").second("01").toDate())){
+                                dialog.date = moment(this.maxDate).toDate();
+                            }
+
+                            if (this.minDate && (nowDate < moment(this.minDate).hour("23").minute("59").second("59").toDate())){
+                                dialog.date = moment(this.minDate).toDate();
+                            }
+
+                        } else {
+                            dialog.date = nowDate;
+                        }
+
+                    }
+
+                    dialog.maxDate = this.maxDate ? moment(this.maxDate).hour("23").minute("59").second("59").toDate() : null;
+                    dialog.minDate = this.minDate ? moment(this.minDate).hour("00").minute("00").second("00").toDate() : null;
 
                     // Localize text
                     dialog.cancelButton = this.cancelButton;
@@ -172,6 +210,7 @@
                     // Capture date if the user saved the dialog
                     dialog.addEventListener('paper-date-picker-edit-dialog-save', function (e) {
                         var newDate = e.detail;
+                        self.oldDate = this.date;
 
                         // If there is already a time picked, don't change it
                         // TODO: this piece is only necessary because of this issue with the date picker: https://github.com/bendavis78/paper-date-picker/issues/50
@@ -181,7 +220,7 @@
                             var minutes = moment(this.date).format('mm');
                             newDate.setHours(hours, minutes);
                         } else if (this.defaultTime) {
-                            // there is no old date, but we want to set the newly chosen one to the default time
+//                             there is no old date, but we want to set the newly chosen one to the default time
                             var oldDate = new moment(this.defaultTime, 'HH:mm');
                             var hours = moment(oldDate).format('HH');
                             var minutes = moment(oldDate).format('mm');
@@ -192,15 +231,12 @@
                         // Inform listener of 'change' events when the date was changed
                         this.fire('change', {value: this.date});
                         this._editTime();
-                        var dateTime = {};
-                        dateTime.year = moment(this.date).locale(this.locale).format("YYYY");
-                        dateTime.month = moment(this.date).locale(this.locale).format("MM");
-                        dateTime.day = moment(this.date).locale(this.locale).format("DD");
-                        dateTime.hours = moment(this.date).locale(this.locale).format("HH");
-                        dateTime.minutes = moment(this.date).locale(this.locale).format("mm");
-                        this.callbackChangeTime(dateTime);
-
                     }.bind(this));
+
+                    dialog.addEventListener('paper-date-picker-cancel', function () {
+                        self.rolledBackDate();
+                        alert("wdfc");
+                    });
 
                     dialog.open();
                 }.bind(this));

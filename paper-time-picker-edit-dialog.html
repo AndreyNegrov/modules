@@ -26,68 +26,71 @@
 
 <script>
 
-(function() {
+    (function() {
 
-	Polymer({
-		is: 'paper-time-picker-edit-dialog',
-		properties: {
-			date: {
-				type: Date,
-				notify: true
-			},
+        Polymer({
+            is: 'paper-time-picker-edit-dialog',
+            properties: {
+                date: {
+                    type: Date,
+                    notify: true
+                },
 
-			/**
-			 * Text for the cancel button in the edit dialog. Use this property to localize the element.
-			 */
-			cancelButton: {
-				type: String,
-				value: 'Cancel'
-			},
+                /**
+                 * Text for the cancel button in the edit dialog. Use this property to localize the element.
+                 */
+                cancelButton: {
+                    type: String,
+                    value: 'Cancel'
+                },
 
-			/**
-			 * Text for the OK button in the edit dialog. Use this property to localize the element.
-			 */
-			okButton: {
-				type: String,
-				value: 'OK'
-			},
+                /**
+                 * Text for the OK button in the edit dialog. Use this property to localize the element.
+                 */
+                okButton: {
+                    type: String,
+                    value: 'OK'
+                },
 
-			/**
-			 * Locale used for formatting times
-			 */
-			locale: String,
-		},
+                /**
+                 * Locale used for formatting times
+                 */
+                locale: String,
+            },
 
-		/**
-		 * Open modal dialog containing the time picker
-		 */
-		open: function() {
-			// Append dialog to the body. This ensures that the dialog claims the full screen instead of being positioned next to the <paper-datetime-picker-item>
-			Polymer.dom(document.body).appendChild(this);
+            /**
+             * Open modal dialog containing the time picker
+             */
+            open: function() {
+                // Append dialog to the body. This ensures that the dialog claims the full screen instead of being positioned next to the <paper-datetime-picker-item>
+                Polymer.dom(document.body).appendChild(this);
 
-			// Wait until dialog is added to the DOM (required for Safari)
-			setTimeout(function() {
-				this.$.dialog.open();
-			}.bind(this), 1);
-		},
+                // Wait until dialog is added to the DOM (required for Safari)
+                setTimeout(function() {
+                    this.$.dialog.open();
+                }.bind(this), 1);
+            },
 
-		// Private methods
-		_save: function() {
-			this.date.setHours(this.$.timePicker.hour, this.$.timePicker.minute);
+            // Private methods
+            _save: function() {
+                this.date.setHours(this.$.timePicker.hour, this.$.timePicker.minute);
 
-			// Inform listeners that the user confirmed the selected date
-			this.fire('paper-date-picker-edit-dialog-save', this.date);
-		},
-		_onClosed: function(e, detail) {
-			// Remove the dialog from the DOM once the exit animation is finished
-			Polymer.dom(this.parentNode).removeChild(this);
-		},
-		_extractTime: function(date) {
-			// no date is defined. Default to today.
-			return moment(date ? date : new Date()).format('LT');
-		}
-	});
+                // Inform listeners that the user confirmed the selected date
+                this.fire('paper-date-picker-edit-dialog-save', this.date);
+            },
+            _onClosed: function(e, detail) {
+                // Remove the dialog from the DOM once the exit animation is finished
+                Polymer.dom(this.parentNode).removeChild(this);
+//            this.fire('paper-date-picker-cancel');
+            },
+            _extractTime: function(date) {
+                // no date is defined. Default to today.
 
-})();
+                return moment(date ? date : new Date()).format('LT');
+
+            }
+        });
+
+    })();
 
 </script>

@@ -13,7 +13,7 @@
 		<style include="paper-date-picker-dialog-style"></style>
 
 		<paper-dialog id="dialog" class="paper-date-picker-dialog" modal on-iron-overlay-closed="_onClosed">
-			<paper-date-picker id="datePicker" date="{{date}}" force-narrow locale="[[locale]]"></paper-date-picker>
+			<paper-date-picker  id="datePicker" date="{{date}}" force-narrow max-date="{{maxDate}}" min-date="{{minDate}}" locale="[[locale]]"></paper-date-picker>
 			<div class="buttons">
 				<paper-button dialog-dismiss>[[cancelButton]]</paper-button>
 				<paper-button dialog-confirm on-tap="_save">[[okButton]]</paper-button>
@@ -25,62 +25,73 @@
 
 <script>
 
-(function() {
+    (function() {
 
-	Polymer({
-		is: 'paper-date-picker-edit-dialog',
-		properties: {
-			date: {
-				type: Date,
-				notify: true
-			},
+        Polymer({
+            is: 'paper-date-picker-edit-dialog',
+            properties: {
+                date: {
+                    type: Date,
+                    notify: true
+                },
 
-			/**
-			 * Text for the cancel button in the edit dialog. Use this property to localize the element.
-			 */
-			cancelButton: {
-				type: String,
-				value: 'Cancel'
-			},
+                maxDate: {
+                    type: Date,
+                    notify: true
+                },
 
-			/**
-			 * Text for the OK button in the edit dialog. Use this property to localize the element.
-			 */
-			okButton: {
-				type: String,
-				value: 'OK'
-			},
+                minDate: {
+                    type: Date,
+                    notify: true
+                },
 
-			/**
-			 * Locale used for formatting dates
-			 */
-			locale: String,
-		},
+                /**
+                 * Text for the cancel button in the edit dialog. Use this property to localize the element.
+                 */
+                cancelButton: {
+                    type: String,
+                    value: 'Cancel'
+                },
 
-		/**
-		 * Open modal dialog containing the date picker
-		 */
-		open: function() {
-			// Append dialog to the body. This ensures that the dialog claims the full screen instead of being positioned next to the <paper-date-picker-item>
-			Polymer.dom(document.body).appendChild(this);
+                /**
+                 * Text for the OK button in the edit dialog. Use this property to localize the element.
+                 */
+                okButton: {
+                    type: String,
+                    value: 'OK'
+                },
 
-			// Wait until dialog is added to the DOM (required for Safari)
-			setTimeout(function() {
-				this.$.dialog.open();
-			}.bind(this), 1);
-		},
+                /**
+                 * Locale used for formatting dates
+                 */
+                locale: String,
+            },
 
-		// Private methods
-		_save: function() {
-			// Inform listeners that the user confirmed the selected date
-			this.fire('paper-date-picker-edit-dialog-save', this.date);
-		},
-		_onClosed: function(e, detail) {
-			// Remove the dialog from the DOM once the exit animation is finished
-			Polymer.dom(this.parentNode).removeChild(this);
-		}
-	});
+            /**
+             * Open modal dialog containing the date picker
+             */
+            open: function() {
+                // Append dialog to the body. This ensures that the dialog claims the full screen instead of being positioned next to the <paper-date-picker-item>
+                Polymer.dom(document.body).appendChild(this);
 
-})();
+                // Wait until dialog is added to the DOM (required for Safari)
+                setTimeout(function() {
+                    this.$.dialog.open();
+                }.bind(this), 1);
+            },
+
+            // Private methods
+            _save: function() {
+                // Inform listeners that the user confirmed the selected date
+                this.fire('paper-date-picker-edit-dialog-save', this.date);
+                console.log(this.date);
+            },
+            _onClosed: function(e, detail) {
+                // Remove the dialog from the DOM once the exit animation is finished
+                Polymer.dom(this.parentNode).removeChild(this);
+            }
+        });
+
+    })();
 
 </script>
