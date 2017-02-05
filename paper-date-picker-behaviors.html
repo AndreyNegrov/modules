@@ -19,13 +19,13 @@
                 notify: true
             },
 
-            maxDate:{
+            maxDate: {
                 type: Date,
                 value: null,
                 notify: true
             },
 
-            minDate:{
+            minDate: {
                 type: Date,
                 value: null,
                 notify: true
@@ -81,18 +81,18 @@
              */
             locale: {
                 type: String,
-                value: function() {
+                value: function () {
                     return moment.locale();
                 }
             }
         },
 
-        _edit: function(dialogId) {
+        _edit: function (dialogId) {
             var dialog = document.createElement(dialogId);
 
             // Wait until dialog is created before the properties can be set
             // @see http://stackoverflow.com/a/31482376
-            this.async(function() {
+            this.async(function () {
                 // Initialize dialog with the current date (default to today to avoid exception)
                 dialog.date = this.date ? moment(this.date).toDate() : new Date();
 
@@ -103,7 +103,7 @@
                 dialog.locale = this.locale;
 
                 // Capture date if the user saved the dialog
-                dialog.addEventListener('paper-date-picker-edit-dialog-save', function(e) {
+                dialog.addEventListener('paper-date-picker-edit-dialog-save', function (e) {
                     this._changeDate(e.detail);
                 }.bind(this));
 
@@ -113,27 +113,37 @@
             // Return dialog for unit testing
             return dialog;
         },
-        _changeDate: function(date) {
+        _changeDate: function (date) {
             this.date = date;
             // Inform listener of "change" events when the date was changed
-            this.fire('change', { value: this.date });
+            this.fire('change', {value: this.date});
 
             this.callbackChangeTime(date);
         },
 
         // Format date
-        _getFormattedDate: function(date, placeholder, locale) {
+        _getFormattedDate: function (date, placeholder, locale) {
             if (!date) {
                 return '';
             }
-            return moment(date).locale(locale).format(this.dateFormat);
+            return this.formatDate(this.return_date.getDate()) + '/' + this.formatDate(this.return_date.getMonth() + 1) + '/' + this.return_date.getFullYear();
         },
         // Format time
-        _getFormattedTime: function(date, locale) {
+        _getFormattedTime: function (date, locale) {
             if (!date) {
                 return '';
             }
-            return '  ' + moment(date).locale(locale).format(this.timeFormat);
+            this.return_date = new Date(date);
+            return ' ' + this.formatDate(this.return_date.getHours()) + ':' + this.formatDate(this.return_date.getMinutes());
+        },
+
+        formatDate: function (str) {
+            if (str.toString().length == 1) {
+                return "0" + str;
+            }
+            return str;
         }
     };
+
+
 </script>
