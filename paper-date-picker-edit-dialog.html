@@ -84,7 +84,6 @@
             _save: function() {
                 // Inform listeners that the user confirmed the selected date
                 this.fire('paper-date-picker-edit-dialog-save', this.date);
-                console.log(this.date);
             },
             _onClosed: function(e, detail) {
                 // Remove the dialog from the DOM once the exit animation is finished
