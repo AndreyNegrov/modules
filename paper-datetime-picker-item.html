@@ -143,14 +143,17 @@
 
             clear: function (event) {
 
-                this.date = null;
-                this.fire('change', {value: null});
+                if (this.callbackDeleteDateTime){
+                    var self = this;
 
-                var self = this;
+                    this.callbackDeleteDateTime(function () {
+                        self.date = null;
+                    });
+				} else {
+                    this.date = null;
+                    this.fire('change', {value: null});
+				}
 
-                this.callbackDeleteDateTime(function () {
-                    self.date = null;
-                });
             },
 
 
@@ -266,8 +269,7 @@
             callbackChangeTime: function (dateTime) {
             },
 
-            callbackDeleteDateTime: function (setToZero) {
-            }
+            callbackDeleteDateTime:undefined
         });
 
     })();
