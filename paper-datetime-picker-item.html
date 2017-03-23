@@ -142,6 +142,10 @@
             ],
 
             clear: function (event) {
+
+                this.date = null;
+                this.fire('change', {value: null});
+
                 var self = this;
 
                 this.callbackDeleteDateTime(function () {
